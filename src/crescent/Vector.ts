@@ -87,6 +87,20 @@ class Vector2 {
     return { x: this._x, y: this._y };
   }
 
+  public get objectwh(): { w: number, h: number } {
+    return { w: this._x, h: this._y };
+  }
+
+  public setX(x: number): Vector2 {
+    this._x = x;
+    return this;
+  }
+
+  public setY(y: number): Vector2 {
+    this._y = y;
+    return this;
+  }
+
   public offset(x: number, y: number): Vector2 {
     return new Vector2(this._x + x, this._y + y);
   }
@@ -239,6 +253,21 @@ class Vector3 {
 
   public get xyz(): number[] {
     return [this._x, this._y, this._z];
+  }
+
+  public setX(x: number): Vector3 {
+    this._x = x;
+    return this;
+  }
+
+  public setY(y: number): Vector3 {
+    this._y = y;
+    return this;
+  }
+
+  public setZ(z: number): Vector3 {
+    this._z = z;
+    return this;
   }
 
   public offset(x: number, y: number, z: number): Vector3 {

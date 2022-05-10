@@ -1,5 +1,8 @@
 /// <reference path="../index.d.ts" />
 
+/// Imports
+import { Vector2 } from './Vector';
+
 /// Types
 type Color = number[];
 
@@ -63,12 +66,26 @@ type FontProps = {
 /// Constants
 const IVORY = [235, 235, 235, 255];
 
+/// Globals
+let RENDERWEIGHT = 1;
+
 /// Functions
+function adjustColor(color: number[]) {
+  return [
+    color[0],
+    color[1],
+    color[2],
+    color[3] * RENDERWEIGHT
+  ];
+}
+
 /**
  * Renders a line between two points.
  * @param props
  */
 function line({ x, y, x2, y2, color = IVORY }: LineProps) {
+  color = adjustColor(color);
+
   Render.Line(x, y, x2, y2, color);
 }
 
@@ -84,6 +101,8 @@ function rectangle({
   filled = true,
   color = IVORY,
 }: RectProps) {
+  color = adjustColor(color);
+
   Render[filled ? "FilledRect" : "Rect"](x, y, w, h, color);
 }
 
@@ -100,6 +119,9 @@ function gradient({
   horizontal = true,
   percentage = 1,
 }: GradientProps) {
+  colors[0] = adjustColor(colors[0]);
+  colors[1] = adjustColor(colors[1]);
+
   if (percentage === 1) {
     Render.GradientRect(
       x,
@@ -178,6 +200,8 @@ function circle({
 }: CircleProps) {
   const SEGMENTS = 32;
 
+  color = adjustColor(color);
+
   if (start === 0 && amount === 1) {
     Render.Arc(x, y, outer, inner, 0, 360, SEGMENTS, color);
   } else {
@@ -213,6 +237,7 @@ function text({
 }: TextProps) {
   const centered = +(alignment === "center");
 
+  color = adjustColor(color);
   text = text.toString();
 
   const textsize = Render.TextSize(text, font);
@@ -228,10 +253,14 @@ function text({
   }
 
   if (shadow) {
+    shadow = adjustColor(shadow);
+
     Render.String(x, y + shadowOffset, centered, text, shadow, font);
   }
 
   if (outline) {
+    outline = adjustColor(outline);
+
     for (let i = 1; i <= outlineWidth; i++) {
       Render.String(x - i, y - i, centered, text, outline, font);
       Render.String(x + i, y - i, centered, text, outline, font);
@@ -256,6 +285,48 @@ function font({
   return Render.GetFont(name, size, windows);
 }
 
+/**
+ * Returns the game's window size
+ * @returns {Vector2 | number[]}
+ */
+function getScreenSize(): Vector2 {
+  return Vector2.from(Render.GetScreenSize())
+}
+
+/**
+ * Returns the current rendering weight.
+ * @returns {number}
+ */
+function getWeight(): number {
+  return RENDERWEIGHT;
+}
+
+/**
+ * Overrides the current rendering weight. The weight is applied to every opacity.
+ * @param {number} weight
+ */
+function setWeight(weight: number) {
+  RENDERWEIGHT = weight;
+}
+
+/**
+ * Overrides the current rendering region. Anything that is rendered outside it, won't be rendered.
+ * @param {number} x
+ * @param {number} y
+ * @param {number} w
+ * @param {number} h
+ */
+function setRegion(x: number, y: number, w: number, h: number) {
+  Render.SetScissorRectangle(x, y, w, h);
+}
+
+/**
+ * Resets the current rendering region
+ */
+function resetRegion() {
+  Render.PopScissorRectangle();
+}
+
 export default {
   line,
   rectangle,
@@ -263,4 +334,9 @@ export default {
   circle,
   text,
   font,
+  getScreenSize,
+  setWeight,
+  getWeight,
+  setRegion,
+  resetRegion
 };

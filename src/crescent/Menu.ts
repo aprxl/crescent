@@ -228,17 +228,12 @@ class Directory extends Path {
   public addSubTab(name: string): Directory {
     this.assertUnique(name);
 
-    let path = [];
+    const path = UI.AddSubTab([
+      this._path[0],
+      this.isSubTabManager() ? this._path[1] : 'SUBTAB_MGR'
+    ], name);
 
-    if (!this.isSubTabManager()) {
-      path = [this.path[0], "SUBTAB_MGR"];
-    } else {
-      path = this._path;
-    }
-
-    UI.AddSubTab(path, name);
-
-    return new Directory([path[0], path[1], path[1]]);
+    return new Directory([path[0], path[2], path[2]]);
   }
 
   /**
